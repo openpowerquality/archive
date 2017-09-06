@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This file is part of opq-sim.
+
+  opq-sim is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  opq-sim is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with opq-sim. If not, see <http://www.gnu.org/licenses/>.
+
+  Copyright 2014 Anthony Christe
+-->
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import java.lang.String?>
+<GridPane xmlns:fx="http://javafx.com/fxml/1" fx:id="sendPacket" hgap="10.0" prefHeight="600.0" prefWidth="800.0"
+          vgap="10.0" xmlns="http://javafx.com/javafx/8"
+          fx:controller="org.openpowerquality.sim.controllers.SendPacket">
+  <children>
+    <Label alignment="CENTER_LEFT" contentDisplay="LEFT" text="Integer View" textAlignment="LEFT"
+           GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2"/>
+    <Label text="Byte View" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2"/>
+    <Label text="Type:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="4"/>
+    <Label text="Sequence Number:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="5"/>
+    <Label text="Device Id:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="3"/>
+    <Label text="Timestamp:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="6"/>
+    <Label text="Bitfield:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="8"/>
+    <TextField fx:id="intSequenceNumber" onKeyReleased="#handleIntToBytes" prefWidth="200.0" text="0"
+               GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+    <TextField fx:id="byteSequenceNumber" onKeyReleased="#handleBytesToInt" prefWidth="200.0" text="0"
+               GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+    <TextField fx:id="longDeviceId" onKeyReleased="#handleLongToBytes" prefWidth="200.0" text="0"
+               GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+    <TextField fx:id="byteDeviceId" onKeyReleased="#handleBytesToLong" prefWidth="200.0" text="0"
+               GridPane.columnIndex="2" GridPane.rowIndex="3"/>
+    <TextField fx:id="longTimestamp" onKeyReleased="#handleLongToBytes" prefWidth="200.0" text="0"
+               GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+    <TextField fx:id="byteTimestamp" onKeyReleased="#handleBytesToLong" prefWidth="200.0" text="0"
+               GridPane.columnIndex="2" GridPane.rowIndex="6"/>
+    <TextField fx:id="intBitfield" onKeyReleased="#handleIntToBytes" prefWidth="200.0" text="0"
+               GridPane.columnIndex="1" GridPane.rowIndex="8"/>
+    <TextField fx:id="byteBitfield" onKeyReleased="#handleBytesToInt" prefWidth="200.0" text="0"
+               GridPane.columnIndex="2" GridPane.rowIndex="8"/>
+    <ComboBox fx:id="intType" onAction="#handleTypeSelection" value="(0) Measurement" GridPane.columnIndex="1"
+              GridPane.rowIndex="4">
+      <items>
+        <FXCollections fx:factory="observableArrayList">
+          <String fx:value="(0) Measurement"/>
+          <String fx:value="(1) Event Frequency"/>
+          <String fx:value="(2) Event Voltage"/>
+          <String fx:value="(3) Event Device"/>
+          <String fx:value="(4) Ping"/>
+        </FXCollections>
+      </items>
+    </ComboBox>
+    <Button contentDisplay="LEFT" mnemonicParsing="false" onAction="#handleSendPacket" text="Send Packet"
+            GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="12"
+            GridPane.valignment="BOTTOM"/>
+    <Button fx:id="btnNow" mnemonicParsing="false" onAction="#handleUpdateTimestamp" text="Now"
+            GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="7" GridPane.valignment="TOP"/>
+    <Label text="Frequency (Hz):" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="9"/>
+    <Label text="Voltage (Volts):" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="10"/>
+    <TextField fx:id="doubleFrequency" onKeyReleased="#handleDoubleToBytes" prefWidth="200.0" text="0.0"
+               GridPane.columnIndex="1" GridPane.rowIndex="9"/>
+    <TextField fx:id="byteFrequency" editable="false" prefWidth="200.0" styleClass="nonEditableField" text="0"
+               GridPane.columnIndex="2" GridPane.rowIndex="9"/>
+    <TextField fx:id="doubleVoltage" onKeyReleased="#handleDoubleToBytes" prefWidth="200.0" text="0.0"
+               GridPane.columnIndex="1" GridPane.rowIndex="10"/>
+    <TextField fx:id="byteVoltage" editable="false" prefWidth="200.0" styleClass="nonEditableField" text="0"
+               GridPane.columnIndex="2" GridPane.rowIndex="10"/>
+    <Label text="Alert Duration:" GridPane.columnIndex="0" GridPane.halignment="RIGHT" GridPane.rowIndex="11"/>
+    <TextField fx:id="longAlertDuration" editable="false" onKeyReleased="#handleLongToBytes" prefWidth="200.0"
+               styleClass="nonEditableField" text="0" GridPane.columnIndex="1" GridPane.rowIndex="11"/>
+    <TextField fx:id="byteAlertDuration" editable="false" onKeyReleased="#handleBytesToLong" prefWidth="200.0"
+               styleClass="nonEditableField" text="0" GridPane.columnIndex="2" GridPane.rowIndex="11"/>
+    <Label text="Websocket URL:" GridPane.halignment="RIGHT"/>
+    <TextField fx:id="txtWebsocketUrl" text="ws://" GridPane.columnIndex="1" GridPane.columnSpan="2147483647"/>
+    <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="15.0" GridPane.columnIndex="2"
+          GridPane.rowIndex="1">
+      <children>
+        <Button fx:id="btnDisconnect" mnemonicParsing="false" onAction="#handleDisconnect" text="Disconnect"/>
+        <Button fx:id="btnConnect" mnemonicParsing="false" onAction="#handleConnect" text="Connect"/>
+      </children>
+    </HBox>
+  </children>
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="282.0" minWidth="10.0" prefWidth="145.0"/>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="392.0" minWidth="10.0" prefWidth="297.0"/>
+    <ColumnConstraints hgrow="SOMETIMES" maxWidth="321.0" minWidth="10.0" prefWidth="308.0"/>
+  </columnConstraints>
+  <padding>
+    <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+  </padding>
+  <rowConstraints>
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+    <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
+  </rowConstraints>
+</GridPane>

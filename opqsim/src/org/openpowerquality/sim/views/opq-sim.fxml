@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This file is part of opq-sim.
+
+  opq-sim is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  opq-sim is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with opq-sim. If not, see <http://www.gnu.org/licenses/>.
+
+  Copyright 2014 Anthony Christe
+-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" prefHeight="800.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/2.2" fx:controller="org.openpowerquality.sim.controllers.Application">
+  <bottom>
+    <TextArea fx:id="logArea" editable="false" prefHeight="100.0" prefWidth="200.0" wrapText="true"
+              BorderPane.alignment="CENTER">
+      <BorderPane.margin>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0"/>
+      </BorderPane.margin>
+    </TextArea>
+  </bottom>
+  <center>
+    <BorderPane prefHeight="200.0" prefWidth="200.0">
+      <center>
+        <TabPane prefHeight="376.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE">
+          <tabs>
+            <Tab closable="false" text="Send Packet">
+              <content>
+                <fx:include source="send-packet.fxml"/>
+              </content>
+            </Tab>
+            <Tab closable="false" text="Simulation">
+              <content>
+                <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                  <tabs>
+                    <Tab closable="false" text="Stress Test">
+                      <content>
+                        <fx:include source="simulations/stress-test.fxml"/>
+                      </content>
+                    </Tab>
+                  </tabs>
+                </TabPane>
+              </content>
+            </Tab>
+            <Tab text="Packet Explorer"/>
+          </tabs>
+        </TabPane>
+      </center>
+    </BorderPane>
+  </center>
+  <top>
+    <MenuBar>
+      <menus>
+        <Menu mnemonicParsing="false" text="File">
+          <items>
+            <MenuItem mnemonicParsing="false" text="Save Status Log"/>
+            <SeparatorMenuItem mnemonicParsing="false"/>
+            <MenuItem mnemonicParsing="false" onAction="#handleMenuClose" text="Exit" fx:id="menuClose"/>
+          </items>
+        </Menu>
+        <Menu mnemonicParsing="false" text="Help">
+          <items>
+            <MenuItem mnemonicParsing="false" text="About"/>
+          </items>
+        </Menu>
+      </menus>
+    </MenuBar>
+  </top>
+</BorderPane>
