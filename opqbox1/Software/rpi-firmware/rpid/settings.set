@@ -1,0 +1,23 @@
+#UART config
+uart.port               :S  :/dev/ttyAMA0
+uart.block_size         :I  :4096
+
+#Calibration constants
+cal.sampling_rate       :F  :3906
+cal.voltage_scaling     :F  :761.5
+
+#Power quality thresholds
+filter.thresh.f         :F  :4.2
+filter.thresh.vrms      :F  :7
+filter.thresh.thd       :F  :0.01
+filter.expected.f       :F  :60
+filter.expected.vrms    :F  :120
+
+filter.measurement.f    :I  :60
+
+#Device Identity and Cloud
+device.id               :U  :3
+device.pinginterval     :I  :600
+device.key              :S  :manoa
+device.throttle         :I  :60
+ws.url                  :S  :ws://emilia.ics.hawaii.edu:8194/private/ws

@@ -1,0 +1,112 @@
+*
+*
+G04 PADS 9.5 Build Number: 522968 generated Gerber (RS-274-X) file*
+G04 PC Version=2.1*
+*
+%IN "ohm1.pcb"*%
+*
+%MOIN*%
+*
+%FSLAX35Y35*%
+*
+*
+*
+*
+G04 PC Standard Apertures*
+*
+*
+G04 Thermal Relief Aperture macro.*
+%AMTER*
+1,1,$1,0,0*
+1,0,$1-$2,0,0*
+21,0,$3,$4,0,0,45*
+21,0,$3,$4,0,0,135*
+%
+*
+*
+G04 Annular Aperture macro.*
+%AMANN*
+1,1,$1,0,0*
+1,0,$2,0,0*
+%
+*
+*
+G04 Odd Aperture macro.*
+%AMODD*
+1,1,$1,0,0*
+1,0,$1-0.005,0,0*
+%
+*
+*
+G04 PC Custom Aperture Macros*
+*
+*
+*
+*
+*
+*
+G04 PC Aperture Table*
+*
+%ADD010C,0.001*%
+%ADD013C,0.01*%
+%ADD139R,0.05709X0.01575*%
+%ADD143R,0.06102X0.03346*%
+*
+*
+*
+*
+G04 PC Circuitry*
+G04 Layer Name ohm1.pcb - circuitry*
+%LPD*%
+*
+*
+G04 PC Custom Flashes*
+G04 Layer Name ohm1.pcb - flashes*
+%LPD*%
+*
+*
+G04 PC Circuitry*
+G04 Layer Name ohm1.pcb - circuitry*
+%LPD*%
+*
+G54D10*
+G54D13*
+G01X100000Y100000D02*
+Y500000D01*
+X400000*
+Y275000*
+X650000*
+Y100000*
+X100000*
+G54D139*
+X250819Y427282D03*
+Y424723D03*
+Y422164D03*
+Y419605D03*
+Y417046D03*
+Y414487D03*
+Y411927D03*
+Y409368D03*
+Y406809D03*
+Y404250D03*
+Y401691D03*
+Y399132D03*
+X273851D03*
+Y401691D03*
+Y404250D03*
+Y406809D03*
+Y409368D03*
+Y411927D03*
+Y414487D03*
+Y417046D03*
+Y419605D03*
+Y422164D03*
+Y424723D03*
+Y427282D03*
+G54D143*
+X214488Y195995D03*
+Y211743D03*
+X191260D03*
+Y195995D03*
+X0Y0D02*
+M02*

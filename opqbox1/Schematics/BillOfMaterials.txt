@@ -1,0 +1,54 @@
+|----------------------------------------------------------------|
+|Bill Of Materials for ohm1.sch                                  |
+|----------------------------------------------------------------|
+|Item|Qty |Reference|Part Name     |Description                  |
+|----+----+---------+--------------+-----------------------------|
+|1   |1   |REG2     |AP7363-33D-13 |                             |
+|2   |3   |C7 C10   |CAP0603,0.1uF |SURFACE MOUNT CAPACITOR 0.031|
+|    |    |C14      |              |X 0.061 INCHES               |
+|3   |2   |C15-16   |CAP0603,12pF  |SURFACE MOUNT CAPACITOR 0.031|
+|    |    |         |              |X 0.061 INCHES               |
+|4   |1   |C13      |CAP0603,15nF  |SURFACE MOUNT CAPACITOR 0.031|
+|    |    |         |              |X 0.061 INCHES               |
+|5   |1   |C8       |CAP0603,2.2nF |SURFACE MOUNT CAPACITOR 0.031|
+|    |    |         |              |X 0.061 INCHES               |
+|6   |2   |C11-12   |CAP0603,47pF  |SURFACE MOUNT CAPACITOR 0.031|
+|    |    |         |              |X 0.061 INCHES               |
+|7   |4   |C4-6 C9  |CAP0805,10uF  |SURFACE MOUNT CAPACITOR 0.048|
+|    |    |         |              |X 0.079 INCHES               |
+|8   |1   |FERRITE  |FERRITE Bead  |                             |
+|    |    |         |              |                             |
+|9   |1   |F1       |FUSE-PCB,2A   |SURFACE MOUNT FUSE 0.031     |
+|    |    |         |              |X 0.061 INCHES               |
+|10  |2   |AFE_UART |HEADER4X1     |                             |
+|    |    |CAR_UART |              |                             |
+|11  |1   |L1       |IND-MOLDED,   |Power inductor               |
+|    |    |         |80 uH         |                             |
+|12  |2   |RPI_LED3-|LED           |                             |
+|    |    |4        |              |                             |
+|13  |1   |REG1     |LM2576        |Regulator                    |
+|14  |1   |REC      |MDB8S         |Rectifier                    |
+|16  |1   |AFE1     |MSP430AFE251IP|ADC                          |
+|    |    |         |W             |                             |
+|17  |1   |J1       |MSP430JTAG    |7 X 2 PIN POLARIZED HEADER,  |
+|    |    |         |              |0.1" CENTERS                 |
+|18  |2   |C1 C3    |		   |ALUMINUM ELECTROLYTIC CAP.   |
+|    |    |         |,1000uF       |STD.                         |
+|19  |1   |R4       |RES0603,0     |SURFACE MOUNT RESISTOR 0.031 |
+|    |    |         |              |X 0.061 INCHES, 1/10W        |
+|20  |1   |R5       |RES0603,1.5K  |SURFACE MOUNT RESISTOR 0.031 |
+|    |    |         |              |X 0.061 INCHES, 1/10W        |
+|21  |1   |R7       |RES0603,100   |SURFACE MOUNT RESISTOR 0.031 |
+|    |    |         |              |X 0.061 INCHES, 1/10W        |
+|22  |1   |R8       |RES0603,1K    |SURFACE MOUNT RESISTOR 0.031 |
+|    |    |         |              |X 0.061 INCHES, 1/10W        |
+|23  |1   |R6       |RES0603,39K   |SURFACE MOUNT RESISTOR 0.031 |
+|    |    |         |              |X 0.061 INCHES, 1/10W        |
+|24  |1   |R2       |RES0603,47K   |SURFACE MOUNT RESISTOR 0.031 |
+|    |    |         |              |X 0.061 INCHES, 1/10W        |
+|25  |2   |R9-10    |RES0603,500   |SURFACE MOUNT RESISTOR 0.031 |
+|    |    |         |              |X 0.061 INCHES, 1/10W        |
+|26  |1   |RPI1     |RPI           |RPI Header                   |
+|28  |1   |Y1       |XTAL,12Mhz    |CRYSTAL                      |
+|29  |1   |D1       |ZENER-DIODE   |POWER ZENER-DIODE            |
+|----------------------------------------------------------------|
