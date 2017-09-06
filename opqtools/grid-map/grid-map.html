@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grid Example</title>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.6.4/leaflet.css"/>
+    <script src="lib/leaflet.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="grid-map.js"></script>
+</head>
+<body>
+<div id="map" style="height:800px"></div>
+<script type="text/javascript">
+  // Create a new grid object
+  var g = grid;
+
+  // Set single selection mode so that only one square can be selected at a time
+  g.config.singleSelectionMode = true;
+
+  // Define what happens when a grid is clicked
+  g.callbacks.onGridClick = function(feature, layer) {
+    //g.colorSquare(feature.properties.id, "red");
+  };
+
+  g.callbacks.onMapChange = function() {
+    //console.log(g.getVisibleIds());
+  };
+
+  g.addPopupContent("0,0:", "This is a test");
+
+  // Initialize the map using the div 'map', centered over the island of Oahu with a zoom level of 7
+  g.initMap("map", g.island.OAHU.latLng, 7);
+
+</script>
+</body>
+</html>
