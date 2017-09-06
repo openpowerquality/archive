@@ -1,0 +1,53 @@
+message OpqPacket {
+  oneof PacketType {
+    Event event = 1;
+    Heartbeat heartbeat = 2;
+    Cmd cmd = 3;
+    CmdResp cmdResp = 4;
+  }
+
+  message Event {
+    optional DeviceId id = 1;
+    optional int32 secondsSinceEpoch = 2;
+    optional int32 cyclcesSinceSecond = 3;
+    optional EventType eventType = 4;
+    repeated int32 waveform = 5;
+  }
+
+  enum EventType {
+    FREQUENCY = 0;
+    VOLTAGE = 1;
+    THD = 2;
+  }
+
+  message Heartbeat {
+    optional DeviceId deviceId = 1;
+    optional double rms = 2;
+    optional double frequency = 3;
+    optional double thd = 4;
+    repeated uint64 synch = 5;
+  }
+
+  message Cmd {
+    optional DeviceId id = 1;
+    optional CmdType cmdType = 2;
+    optional string message = 3;
+  }
+
+  enum CmdType {
+    KILL_SERVER = 0;
+    RESTART_DEVICE = 1;
+    GET_REGISTER_MAP = 2;
+    RUN_DIAGNOSTICS = 3;
+  }
+
+  message CmdResp {
+    optional DeviceId id = 1;
+    optional string message = 2;
+  }
+
+  message DeviceId {
+    optional int64 deviceId = 1;
+    optional string deviceKey = 2;
+  }
+}
