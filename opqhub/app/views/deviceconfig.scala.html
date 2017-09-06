@@ -1,0 +1,119 @@
+@(deviceId: Long, accessKey: String, deviceForm: Form[OpqDevice], locationForm: Form[Location], location: Location)
+
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>OPQHub - OPQBox Configuration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Needed libraries -->
+    <script src="@routes.Assets.at("contrib/js/jquery-2.1.1.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/moment.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/bootstrap.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/leaflet.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("js/grid-map.js")" type="text/javascript"></script>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("css/site.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/leaflet.css")">
+  </head>
+  <body>
+   @navbar()
+    <!-- Main content -->
+    <div class="container" id="main-content">
+      <div class="row">
+        <!-- Account update directions -->
+        <div class="col-lg-3 well">
+          <b>OPQBox Configuration</b>
+          <p>This page allows you to update information linked to your OPQBoxes.</p>
+          <p>The <b>Description</b> field should be a common name for your device (i.e. Jane's Office).</p>
+          <p>Check the <b>Share data</b> checkbox to share your power quality data publicly and anonymously.</p>
+          <p>To change the location of your device, select a new location on the map.</p>
+        </div>
+
+        <div class="col-lg-4">
+          @if(flash.contains("updated")) {
+            <p class="success">
+            @flash.get("updated")
+            </p>
+          }
+          <form action="@routes.Administration.saveDeviceConfiguration(session.get("email"), deviceForm("accessKey.accessKey").value, Long.parseLong(deviceForm("deviceId").value))" method="POST" class="form-horizontal" role="form">
+            @if(location == null) {
+              <input type="hidden" id="northEastLatitude" name="northEastLatitude" />
+              <input type="hidden" id="northEastLongitude" name="northEastLongitude" />
+              <input type="hidden" id="southWestLatitude" name="southWestLatitude" />
+              <input type="hidden" id="southWestLongitude" name="southWestLongitude" />
+              <input type="hidden" id="gridScale" name="gridScale" />
+              <input type="hidden" id="gridRow" name="gridRow" />
+              <input type="hidden" id="gridCol" name="gridCol" />
+            } else {
+              <input type="hidden" id="northEastLatitude" name="northEastLatitude" value="@location.getNorthEastLatitude().toString()" />
+              <input type="hidden" id="northEastLongitude" name="northEastLongitude" value="@location.getNorthEastLongitude().toString()" />
+              <input type="hidden" id="southWestLatitude" name="southWestLatitude" value="@location.getSouthWestLatitude().toString()" />
+              <input type="hidden" id="southWestLongitude" name="southWestLongitude" value="@location.getSouthWestLongitude().toString()" />
+              <input type="hidden" id="gridScale" name="gridScale" value="@location.getGridScale().toString()" />
+              <input type="hidden" id="gridRow" name="gridRow" value="@location.getGridRow().toString()" />
+              <input type="hidden" id="gridCol" name="gridCol" value="@location.getGridCol().toString()" />
+            }
+
+            @helper.textinput("deviceId", "Device Id", "col-sm-3", "col-sm-4 disabled", "", deviceForm("deviceId").value, readonly=true)
+            @helper.textinput("accessKey.accessKey", "Key", "col-sm-3", "col-sm-4 disabled", "", deviceForm("accessKey.accessKey").value, readonly=true)
+            @helper.textinput("gridId", "Location", "col-sm-3", "col-sm-4 disabled", "", locationForm("gridId").value, readonly=true)
+            @helper.textinput("description", "Description", "col-sm-3", "col-sm-4 disabled", "", deviceForm("description").value)
+            @helper.checkboxinput("sharingData", "Share data", "col-sm-offset-3", "col-sm-4", deviceForm("sharingData").value)
+            <input type="hidden" name="sharingData" id="sharingData" value="false" />
+
+
+            <!-- Submit button -->
+            <button type="submit" class="col-sm-offset-3 btn btn-primary" id="submitBtn" name="submitBtn">Update OPQBox</button>
+
+          </form>
+        </div>
+
+        <!-- Map -->
+        <div class="col-lg-5">
+          <div id="grid-map" style="height:500px"></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      function onGridClick(feature, layer) {
+        $(function () {
+          $('#gridId').val(feature.properties.id);
+          $('#northEastLatitude').val(feature.properties.boundingBox.getNorthEast().lat);
+          $('#northEastLongitude').val(feature.properties.boundingBox.getNorthEast().lng);
+          $('#southWestLatitude').val(feature.properties.boundingBox.getSouthWest().lat);
+          $('#southWestLongitude').val(feature.properties.boundingBox.getSouthWest().lng);
+          $('#gridScale').val(feature.properties.scale);
+          $('#gridRow').val(feature.properties.row);
+          $('#gridCol').val(feature.properties.col);
+        });
+
+        g.colorSquare(feature.properties.id, "red");
+      }
+
+      var g = grid;
+      g.config.singleSelectionMode = true;
+      g.callbacks.onGridClick = onGridClick;
+
+      var gridId = $('#gridId').val();
+      var gridScale = $('#gridScale').val()
+      var northEastLatitude = $('#northEastLatitude').val();
+      var northEastLongitude = $('#northEastLongitude').val();
+      var southWestLatitude = $('#southWestLatitude').val();
+      var southWestLongitude = $('#southWestLongitude').val();
+
+      if(gridId.length > 0 && gridScale.length > 0 && northEastLatitude.length > 0 && northEastLongitude.length > 0) {
+        var latLng = [(parseFloat(northEastLatitude) + parseFloat(southWestLatitude)) / 2,
+        (parseFloat(northEastLongitude) + parseFloat(southWestLongitude)) / 2];
+        var zoom = g.getZoomByDistance(parseFloat(gridScale));
+        g.initMap("grid-map", latLng, zoom);
+        g.colorSquare(gridId, "red")
+      }
+      else {
+        g.initMap("grid-map", g.island.OAHU.latLng, g.island.OAHU.defaultZoom);
+      }
+    </script>
+  </body>
+</html>

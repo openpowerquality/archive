@@ -1,0 +1,744 @@
+@(data: template.data.PublicMonitorData)
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>OPQHub - Public Power Quality</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Needed libraries -->
+        <script src="@routes.Assets.at("contrib/js/jquery-2.1.1.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/moment.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/bootstrap.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/bootstrap-datetimepicker.min.js")" type="text/javascript"></script>
+
+        <script src="@routes.Assets.at("contrib/js/leaflet.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/jquery.flot.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/jquery.flot.navigate.js")" type="text/javascript"></script>
+
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap-datetimepicker.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/leaflet.css")">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <!-- Site specific details -->
+        <script src="@routes.Assets.at("js/grid-map.js")" type="text/javascript"></script>
+
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("css/site.css")">
+
+        <!-- Validation -->
+        <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>
+        <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js"></script>
+    </head>
+    <body>
+            <!-- Responsive navbar -->
+        @navbar()
+
+            <!-- Main content -->
+        <div class="container" id="main-content">
+
+                <!-- Main two columns. Left: filters & map. Right: Events and event details. -->
+            <div class="row">
+
+                    <!-- Filters and map -->
+                <div class="col-md-5">
+
+                        <!-- Filters -->
+                    <div class="row">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                              <h3 class="panel-title">
+                                <i class="fa fa-sliders" style="margin-right: 5px;"></i>Filter
+                                <button style="margin-top: -7px;" type="button" class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#displayModal">
+                                  <i class="fa fa-question-circle fa-lg"></i>
+                                </button>
+                              </h3>
+                            </div>
+                            <div class="panel-body">
+
+                                    <!-- Frequency filter -->
+                                <div class="row">
+                                    <label class="col-sm-3">Freq. (Hz)</label>
+                                    <div class="col-xs-1">
+                                        <input type="checkbox" class="checkbox" id="requestFrequency" @if(data.requestFrequency){checked="checked"}>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="sr-only" for="frequencyGt">Frequency Greater Than</label>
+                                        <input type="text" class="form-control" id="frequencyGt"
+                                            value="@utils.DisplayUtils.twoDecimal.format(data.minFrequency)">
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="sr-only" for="frequencyLt">Frequency Less Than</label>
+                                        <input type="text" class="form-control" id="frequencyLt"
+                                            value="@utils.DisplayUtils.twoDecimal.format(data.maxFrequency)">
+                                    </div>
+                                </div>
+
+                                    <!-- Voltage filter -->
+                                <div class="row">
+                                    <label class="col-sm-3">Voltage (V)</label>
+                                    <div class="col-xs-1">
+                                        <input type="checkbox" id="requestVoltage" @if(data.requestVoltage){checked="checked"}>
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="sr-only" for="voltageGt">Voltage Greater Than</label>
+                                        <input type="text" class="form-control" id="voltageGt"
+                                            value="@utils.DisplayUtils.oneDecimal.format(data.minVoltage)">
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="sr-only" for="voltageLt">Voltage Less Than</label>
+                                        <input type="text" class="form-control" id="voltageLt"
+                                            value="@utils.DisplayUtils.oneDecimal.format(data.maxVoltage)">
+                                    </div>
+                                </div>
+
+                                    <!-- Duration filter -->
+                                <div class="row">
+                                    <label class="col-sm-4">Duration (sec)</label>
+                                    <div class="form-group col-sm-4">
+                                        <label class="sr-only" for="durationGt">Duration Greater Than</label>
+                                        <input type="text" class="form-control" id="durationGt" value="@data.minDuration">
+                                    </div>
+                                    <div class="form-group col-sm-4">
+                                        <label class="sr-only" for="durationLt">Duration Less Than</label>
+                                        <input type="text" class="form-control" id="durationLt" value="@data.maxDuration">
+                                    </div>
+                                </div>
+
+                                    <!-- ITIC filter -->
+                                <div class="row">
+                                    <label class="col-sm-4 control-label">ITIC</label>
+                                    <label class="col-xs-2 control-label">Severe</label>
+                                    <div class="col-xs-1">
+                                        <input type="checkbox" id="requestIticSevere" @if(data.iticSevere){checked="checked"}>
+                                    </div>
+                                    <label class="col-xs-2 control-label">Moderate</label>
+                                    <div class="col-xs-1">
+                                        <input type="checkbox" id="requestIticModerate" @if(data.iticModerate){checked="checked"}>
+                                    </div>
+                                    <label class="col-xs-1 control-label">OK</label>
+                                    <div class="col-xs-1">
+                                        <input type="checkbox" id="requestIticOk" @if(data.iticOk){checked="checked"}>
+                                    </div>
+                                </div>
+
+
+                                    <!-- Time interval filter -->
+                                <div class="row">
+                                    <div class="form-group">
+
+                                            <!-- Start time interval -->
+                                        <label for="startTimestamp" class="col-sm-2 control-label">Time Interval</label>
+                                        <div class="col-sm-5">
+                                            <div class='input-group date' id='startTimestamp'>
+                                                <input type='text' class="form-control" id="startTimestampInput"/>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                            <!-- Stop time interval -->
+                                        <div class="col-sm-5">
+                                            <div class='input-group date' id='stopTimestamp'>
+                                                <input type='text' class="form-control" id="stopTimestampInput"/>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="error" class="verror"></div>
+                                </div>
+
+                                <!-- Quick Views -->
+                                <div class="row" style="margin-top: 5px; margin-bottom: 10px;">
+                                  <label class="col-sm-4">Quick View</label>
+                                  <div class="col-sm-8">
+                                    <div class="pull-right">
+                                      <button type="button" class="btn btn-success btn-sm" id="pastDayTimeBtn">Today's Data</button>
+                                      <button type="button" class="btn btn-success btn-sm" id="pastWeekTimeBtn">Week's Data</button>
+                                      <button type="button" class="btn btn-success btn-sm" id="pastMonthTimeBtn">Month's Data</button>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                    <!-- Update/Reset buttons -->
+                                <div class="row">
+                                    <label class="col-sm-4">Update</label>
+                                    <div class="col-sm-8">
+                                        <div class="pull-right">
+                                          <button type="button" class="btn btn-primary btn-md updateBtn" id="updateBtn">Update Filters</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div id="messages" class="invalid"></div>
+                        </div>
+                    </div>
+
+                        <!-- Map -->
+                  <div class="row">
+                    <div class="panel panel-default">
+                      <div class="panel-heading">
+                        <h3 class="panel-title">
+                          <i class="fa fa-map-marker" style="margin-right: 5px;"></i>Public Map
+                          <button style="margin-top:-7px" type="button" class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#mapModal">
+                            <i class="fa fa-question-circle fa-lg"></i>
+                          </button>
+                        </h3>
+                      </div>
+                      <div class="panel-body" style="padding: 0px;">
+                        <div class="public-map">
+                          <div class="public-map" id="public-map"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                    <!-- Events and event details -->
+                <div class="col-md-7" id="public-map-right-col">
+
+                        <!-- Events -->
+                    <div class="row">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title" id="events-title">
+                                  <i class="fa fa-th-list" style="margin-right: 5px;"></i>Events
+                                  <button style="margin-top:-7px" type="button" class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#eventsModal">
+                                    <i class="fa fa-question-circle fa-lg"></i>
+                                  </button>
+                                </h3>
+                            </div>
+                            <div class="panel-body" id="events-table">
+                              <table>
+                                <tr>
+                                  <td>Total Events</td> <td><span id="totalEvents" class='badge global-stats'>@data.totalEventsCount</span></td>
+                                  <td>Frequency Events</td> <td><span id="totalFrequencyEvents" class='badge global-stats'>@data.frequencyEventsCount</span></td>
+                                  <td>Voltage Events</td> <td><span id="totalVoltageEvents" class='badge global-stats'>@data.voltageEventsCount</span></td>
+                                </tr>
+                              </table>
+                                @if(data.totalEventsCount > 0) {
+                                <table class="table table-hover" id="events">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>Type</th>
+                                            <th>Duration</th>
+                                            <th>Value</th>
+                                            <th>ITIC</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for(event <- data.totalEvents) {
+                                            <tr id="@event.event.getPrimaryKey">
+                                                <td>@utils.DateUtils.toDateTime(event.event.getTimestamp)</td>
+                                                <td>@event.event.getEventType.getName</td>
+                                                <td>@event.event.getDuration s</td>
+                                                <td>
+                                                    @if(event.event.getEventType.getName.equals("Voltage Event")){
+                                                        @utils.DisplayUtils.oneDecimal.format(event.event.getVoltage) V
+                                                    }
+                                                    @if(event.event.getEventType.getName.equals("Frequency Event")){
+                                                        @utils.DisplayUtils.twoDecimal.format(event.event.getFrequency) Hz
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @{event.iticRegion match {
+                                                        case utils.PqUtils.IticRegion.NO_INTERRUPTION => <span class='badge itic-badge itic-no-interruption'>&nbsp;</span>
+                                                        case utils.PqUtils.IticRegion.NO_DAMAGE => <span class='badge itic-badge itic-no-damage'>&nbsp;</span>
+                                                        case utils.PqUtils.IticRegion.PROHIBITED => <span class='badge itic-badge itic-prohibited'>&nbsp;</span>
+                                                        case _ => "N/A"
+                                                    }}
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                } else {
+                                    No events to display.
+                                }
+                            </div>
+                            <div class="panel-footer panel-title">
+                                 @if(data.page > 0) {
+                                     <button type="button" class="btn btn-primary btn-xs" id="prev-page-btn">
+                                         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                                     </button>
+                                 }
+                                 @{data.page + 1} / @{data.totalPages + 1}
+                                 @if(data.page < data.totalPages) {
+                                    <button type="button" class="btn btn-primary btn-xs" id="next-page-btn">
+                                        <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                                    </button>
+                                 }
+                            </div>
+                        </div>
+                    </div>
+
+                        <!-- Event details -->
+                    <div class="row">
+                            <!-- Hidden fields that allow us to store the location of each event -->
+                        <input type="hidden" id="details-center-lat" />
+                        <input type="hidden" id="details-center-lng" />
+                        <input type="hidden" id="details-zoom" />
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 id="event-title" class="panel-title">
+                                  <i class="fa fa-plug" style="margin-right: 5px;"></i>Event Details @if(data.detailedEvent.ne(null)){- @utils.DateUtils.toDateTime(data.detailedEvent.event.getTimestamp)}
+                                  <button style="margin-top:-7px" type="button" class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#eventDetailsModal">
+                                    <i class="fa fa-question-circle fa-lg"></i>
+                                  </button>
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="col-md-4">
+                                    @if(data.detailedEvent.ne(null)) {
+                                        <table class="table table-condensed">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Frequency</td>
+                                                    <td id="details-frequency">
+                                                        @utils.DisplayUtils.twoDecimal.format(data.detailedEvent.event.getFrequency)
+                                                        Hz
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Voltage</td>
+                                                    <td id="details-voltage">
+                                                        @utils.DisplayUtils.oneDecimal.format(data.detailedEvent.event.getVoltage)
+                                                        V
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Duration</td>
+                                                    <td id="details-duration">
+                                                        @data.detailedEvent.event.getDuration s
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td id="details-itic-title">ITIC</td>
+                                                    <td id="details-itic-severity">
+                                                    @{
+                                                        data.detailedEvent.iticRegion match {
+                                                            case utils.PqUtils.IticRegion.NO_INTERRUPTION => <span class='badge itic-badge itic-no-interruption'>&nbsp;</span>
+                                                            case utils.PqUtils.IticRegion.NO_DAMAGE => <span class='badge itic-badge itic-no-damage'>&nbsp;</span>
+                                                            case utils.PqUtils.IticRegion.PROHIBITED => <span class='badge itic-badge itic-prohibited'>&nbsp;</span>
+                                                            case _ => "N/A"
+                                                        }
+                                                    }
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Location</td>
+                                                    <td>
+                                                        <a class="btn-link" id="details-grid-id">
+                                                        @data.detailedEvent.event.getLocation.getGridId
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    } else {
+                                        No event details to display.
+                                    }
+                                </div>
+                                <div id="waveform" class="col-md-4 plot"></div>
+                            </div>
+                          <div class="panel-footer panel-title">
+                            <button type="button" class="btn btn-primary btn-xs" id="prev-event-btn">
+                              <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                            </button>
+
+                            Prev / Next
+
+                            <button type="button" class="btn btn-primary btn-xs" id="next-event-btn">
+                              <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                            </button>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+      <!-- Help Modals -->
+      <!-- Filter Pane Modal -->
+      <div class="modal fade" id="displayModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Filter Panel</h4>
+            </div>
+            <div class="modal-body">
+              <p>
+                The "Filter" pane allows the user to filter the displayed events by a variety of criteria.
+              </p>
+              <img src="@routes.Assets.at("images/display-panel.png")">
+              <p>
+                The screenshot above illustrates the following event filters:
+            <ul>
+              <li>Frequencies ranging between 57.96 to 62.42 Hz</li>
+              <li>Voltages ranging between 89.3 to 141.1 V</li>
+              <li>Event duration ranging between 1 to 256 seconds</li>
+              <li>Events falling within all ITIC ranges</li>
+              <li>Events occurring between July 31, 2014 through November 30, 2014</li>
+            </ul>
+
+              The filter values are pre-populated with default values with minimum and maximum known event frequencies, voltages, and durations, and event ranges.
+              </p>
+              <p>
+                You can can choose to filter out only voltage or frequency events by selecting the appropriated text
+                boxes to the right of the "Freq" and "Voltage" labels.
+              </p>
+              <p>
+                You can filter events within certain ranges of frequencies, voltages, and durations by modifying the
+                appropriate text fields.
+              </p>
+              <p>
+                You can filter events that meet certain ITIC criteria be selecting the check boxes to the right of the
+                "ITIC" field. "Severe" events fall into the "prohibted region" of the ITIC curve. "Moderate" events fall
+                into the "no damage region" of the ITIC curve. and "Ok" events fall into the "no damage region" of the
+                ITIC curve.
+              </p>
+              <p>
+                You can filter events by date range by selecting the appropriate date ranges to the right of "Time
+                Interval".
+              </p>
+              <p>
+                When you are done setting up your filters, press the "Update" button to reload the page with the new
+                filter values applied.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Got it!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- Events Pane Modal -->
+      <div class="modal fade" id="eventsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Events Panel</h4>
+            </div>
+            <div class="modal-body">
+              <p>
+                The "Events" pane displays a listing of all events based on the filter criteria set in the "Display" pane to the right.
+              </p>
+              <img src="@routes.Assets.at("images/events-panel.png")">
+              <p>
+                The numbers at the top of the Events pane display the total number of events, total number of
+                frequency events, and total number of voltage events.
+              </p>
+              <p>
+                The table of events list 100 events per page sorted in increasing date time order. The current page can
+                be increased or decreased using the left and right arrows at the bottom of this box.
+              </p>
+              <p>
+                Each event shows the timestamp (in UTC/GMT), the type of power event, the duration of event in seconds,
+                the value of the event, and the severity of the event based off of the ITIC curve.
+              </p>
+              <p>
+                Red events are severe
+                events that fall within the "prohibited region" of the ITIC curve. Yellow events are moderate events
+                that fall within the "no damange region" of the ITIC curve. Green events are ok events that fall within
+                the "no interruption" region of the ITIC curve".
+              </p>
+              <p>
+                Events in the table are clickable. Clicking on any of the rows will reload the page and display the
+                details for that event in the "Event Details" pane.
+              </p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Got it!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- Event Details Pane Modal -->
+      <div class="modal fade" id="eventDetailsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Event Details Panel</h4>
+            </div>
+            <div class="modal-body">
+              <p>
+                The "Event Details" pane displays summary data of the selected event.
+              </p>
+              <img src="@routes.Assets.at("images/event-details-panel.png")">
+              <p>
+                Displays detailed event information. The waveform can be panned by clicking on the plot and dragging.
+                The waveform can also be scrolled by using the mouse wheel. Selecting the location link will scroll
+                pan and zoom the map to the location of the event and reload the page.
+              </p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Got it!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- Map Pane Modal -->
+      <div class="modal fade" id="mapModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Public Map Panel</h4>
+            </div>
+            <div class="modal-body">
+              <p>
+                This map displays power quality events graphically by region. The map is split up into grid-cells containing a specific geographic region based on zoom.
+                All events that are displayed on this page are contained within the current viewing area of the map.
+                To display events in different regions, zoom and pan the map to select the region you would like to display events from.
+              </p>
+              <p>
+                The map can be panned and by left clicking on on the map and while holding down the mouse key dragging the map.
+                The map can be zoomed by pressing the +/- buttons in the upper left hand corner of the map or by scrolling with the scroll wheel of your mouse.
+              </p>
+              <p>
+                Each grid-cell contains the total number of power quality events within that region displayed as a series of three numbers.
+                Red numbers represent the number of severe ITIC events within that region. Yellow numbers represent the number of moderate ITIC events within that region.
+                Green numbers represent the number of ok ITIC events within that region.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Got it!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <script type="text/javascript">
+            /*
+             * Grabs all of the needed parameters from the filters, pagination, and the map, and then constructs
+             * a new url to update the page.
+             */
+            function update(page, detailedEventId, mapCenterLat, mapCenterLng, mapZoom) {
+                var visibleIds = grid.getVisibleIds( ).join(";");
+                visibleIds = visibleIds.split("," ).join("c");
+                visibleIds = visibleIds.split(":" ).join("C");
+                visibleIds = visibleIds.split(";" ).join("s");
+
+                var params = {
+                    requestFrequency: $ ( "#requestFrequency" ).is ( ':checked' ),
+                    minFrequency    : $ ( "#frequencyGt" ).val ( ),
+                    maxFrequency    : $ ( "#frequencyLt" ).val ( ),
+                    requestVoltage  : $ ( "#requestVoltage" ).is ( ':checked' ),
+                    minVoltage      : $ ( "#voltageGt" ).val ( ),
+                    maxVoltage      : $ ( "#voltageLt" ).val ( ),
+                    minDuration     : $ ( "#durationGt" ).val ( ),
+                    maxDuration     : $ ( "#durationLt" ).val ( ),
+                    minTimestamp    : moment.utc ( $ ( "#startTimestamp" ).data ( "DateTimePicker" ).date ( ) )._d.getTime ( ),
+                    maxTimestamp    : moment.utc ( $ ( "#stopTimestamp" ).data ( "DateTimePicker" ).date ( ) )._d.getTime ( ),
+                    iticSevere      : $ ( "#requestIticSevere" ).is ( ':checked' ),
+                    iticModerate    : $ ( "#requestIticModerate" ).is ( ':checked' ),
+                    iticOk          : $ ( "#requestIticOk" ).is ( ':checked' ),
+                    mapCenterLat    : mapCenterLat || grid.getCenterLat ( ),
+                    mapCenterLng    : mapCenterLng || grid.getCenterLng ( ),
+                    mapZoom         : mapZoom || grid.getZoom ( ),
+                    page            : page || 0,
+                    detailedEventId : detailedEventId || -1,
+                    mapVisibleIds   : visibleIds
+                };
+
+                var url = window.location.pathname + "?" + $.param(params);
+                window.location.href = url;
+            }
+
+            /* ---------- Intialize the page components ----------*/
+            // Set up calendar fields correctly
+            $("#startTimestamp").datetimepicker();
+            $("#stopTimestamp").datetimepicker();
+            $("#startTimestamp").data("DateTimePicker").date(new Date(@data.minTimestamp));
+            $("#stopTimestamp").data("DateTimePicker").date(new Date(@data.maxTimestamp));
+
+            // Initialize the map
+            grid.initMap("public-map", [@data.mapCenterLat, @data.mapCenterLng], @data.mapZoom);
+
+            // Send grid data to map
+            @for((gridId, cnt) <- data.gridIdEventCounts) {
+                grid.addEventNumbers("@gridId", @cnt.severeEvents, @cnt.moderateEvents, @cnt.okEvents);
+            }
+
+            // Setup what happens when the map is changed
+            grid.callbacks.onMapChange = function() {
+                update();
+            };
+
+            // Set up plot for event details
+            var plotOptions = {
+
+                zoom: {
+                    interactive: true
+                },
+                pan: {
+                    interactive: true
+                },
+                acisLabels: {
+                    show: true
+                },
+                xaxis: {
+                    ticks: 5,
+                    min: 1000,
+                    max: 3000
+                },
+                xaxes: [{
+                    axisLabel: "Samples"
+                }],
+                yaxes: [{
+                    axisLabel: "Voltage"
+                }],
+                series: {
+                    lines: {show: true},
+                    points: {show: false}
+                }
+            };
+
+            @if(data.detailedEvent != null) {
+              var plotPoints = " @data.detailedEvent.event.getEventData.getWaveform "
+              .split ( "," ).map ( function ( pt, idx ) {
+                return[ idx, parseFloat ( pt ) ] ;
+              } ) ;
+              $.plot ( $ ( "#waveform" ), [ plotPoints ], plotOptions );
+            }
+
+            /* ---------- Handle click events ---------- */
+            // When update button is clicked, generate URL and goto
+            $("#updateBtn").click(function() {
+                update();
+            });
+
+            // Next and previous page buttons
+            $("#prev-page-btn").click(function() {
+                update(@{data.page - 1});
+            });
+
+            $("#next-page-btn").click(function() {
+                update(@{data.page + 1});
+            });
+
+            // Table row details update
+            $("#events tr" ).click(function(){
+               update(@data.page, this.id);
+            });
+
+            // Device location click event
+            @if(data.detailedEvent != null) {
+              $ ( "#details-grid-id" ).click ( function ( ) {
+              var lat = @{
+                (data.detailedEvent.event.getLocation.getNorthEastLatitude + data.detailedEvent.event.getLocation.getSouthWestLatitude) / 2
+              } ;
+              var lng = @{
+                (data.detailedEvent.event.getLocation.getNorthEastLongitude + data.detailedEvent.event.getLocation.getSouthWestLongitude) / 2
+              } ;
+              var zoom = grid.getZoomByDistance ( @data.detailedEvent.event.getLocation.getGridScale ) ;
+              grid.setView([lat, lng], zoom);
+              update ( @data.page, @data.detailedEvent.event.getPrimaryKey, lat, lng, zoom ) ;
+              } ) ;
+            }
+
+            // Center and highlight selected event.
+            @if(data.detailedEvent != null) {
+              $(function() {
+                var eventsPanel = $("#events-table");
+                var eventRow = $("#@data.detailedEvent.event.getPrimaryKey").addClass('info');
+
+                if(eventRow.length) {
+                  var rowOffset = eventRow.offset().top; // Offset position of selected row.
+                  var panelHeightMiddle = eventsPanel.height() / 2; // Half of panel body height.
+                  var extraOffset = 100; // Need this b/c of badge table at top of events panel.
+
+                  eventsPanel.scrollTop(rowOffset - panelHeightMiddle - extraOffset); // Scroll to selected row.
+                }
+              });
+            }
+
+            // Next and previous event buttons
+            @if(data.detailedEvent != null) {
+              $("#prev-event-btn").click(function() {
+                var currentEventRow = $("#@data.detailedEvent.event.getPrimaryKey");
+
+                //If at top of list, must go previous page's bottom-most event.
+                if ((currentEventRow.attr("id") == $('#events tbody>tr:first').attr('id')) && @data.page != 0) {
+                  update(@{data.page - 1}, -2);
+                }
+                else {
+                  //Else select previous row id.
+                  var prevRowId = currentEventRow.prev().attr("id");
+                  update(@data.page, prevRowId);
+                }
+              });
+
+              $("#next-event-btn").click(function() {
+                var currentEventRow = $("#@data.detailedEvent.event.getPrimaryKey");
+
+                //If at bottom of list, must go next page's top-most event.
+                if ((currentEventRow.attr("id") == $('#events tr:last').attr('id')) && @data.page < @data.totalPages) {
+                  update(@{data.page + 1});
+                }
+                else {
+                  //Else select next row id.
+                  var nextRowId = currentEventRow.next().attr("id");
+                  update(@data.page, nextRowId);
+                }
+              });
+            }
+
+            // Quick View Buttons
+            $("#pastDayTimeBtn" ).click(function() {
+              // Get time
+              var now = moment.utc();
+              var dayAgo = moment.utc(now).subtract(1, 'days');
+
+              // Set input field time interval
+              $("#startTimestamp").data("DateTimePicker").date(new Date(dayAgo));
+              $("#stopTimestamp").data("DateTimePicker").date(new Date(now));
+
+              // Update page.
+              update();
+            });
+
+            $("#pastWeekTimeBtn" ).click(function() {
+              // Get time
+              var now = moment.utc();
+              var weekAgo = moment.utc(now).subtract(1, 'weeks');
+
+              // Set input field time interval
+              $("#startTimestamp").data("DateTimePicker").date(new Date(weekAgo));
+              $("#stopTimestamp").data("DateTimePicker").date(new Date(now));
+
+              // Update page.
+              update();
+            });
+
+            $("#pastMonthTimeBtn" ).click(function() {
+              // Get time
+              var now = moment.utc();
+              var monthAgo = moment.utc(now).subtract(1, 'months');
+
+              // Set input field time interval
+              $("#startTimestamp").data("DateTimePicker").date(new Date(monthAgo));
+              $("#stopTimestamp").data("DateTimePicker").date(new Date(now));
+
+              // Update page.
+              update();
+            });
+        </script>
+    </body>
+</html>

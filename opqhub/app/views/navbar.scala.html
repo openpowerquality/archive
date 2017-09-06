@@ -1,0 +1,7 @@
+@()
+
+@if(session.get("email") == null) {
+  @publicnavbar()
+} else {
+  @privatenavbar()
+}

@@ -1,0 +1,55 @@
+#   This file is part of opq-ao.
+#
+#   opa-ao is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   opa-ao is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with opq-ao.  If not, see <http://www.gnu.org/licenses/>.
+#
+#   Copyright 2014 Anthony Christe
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET         /                                            controllers.Application.index()
+
+GET         /publicredir                                 controllers.PublicMonitor.publicMonitor()
+GET         /publicmonitor                               controllers.PublicMonitor.publicMonitorWithArgs(requestFrequency: Boolean, minFrequency: Double, maxFrequency: Double, requestVoltage: Boolean, minVoltage: Double, maxVoltage: Double, minDuration: Int, maxDuration: Int, minTimestamp: Long, maxTimestamp: Long, iticSevere: Boolean, iticModerate: Boolean, iticOk: Boolean, mapCenterLat: Double, mapCenterLng: Double, mapZoom: Int, page: Int, detailedEventId: Long, mapVisibleIds: String)
+
+# Sign Up
+GET         /signup                                      controllers.Person.signup()
+POST        /signup                                      controllers.Person.save()
+
+# Log in/out
+POST        /login                                       controllers.Application.authenticate()
+GET         /:email/logout                               controllers.Application.logout(email: String)
+
+# Administration
+GET         /:email/account                              controllers.Administration.user(email: String)
+POST        /:email/account                              controllers.Administration.updateUser(email: String)
+
+GET         /:email/opqboxes                             controllers.Administration.device(email: String)
+POST        /:email/opqboxes                             controllers.Administration.saveDevice(email: String)
+
+GET         /:email/opqboxes/:accessKey/:deviceId        controllers.Administration.configureDevice(email: String, accessKey: String, deviceId: Long)
+POST        /:email/opqboxes/:accessKey/:deviceId        controllers.Administration.saveDeviceConfiguration(email: String, accessKey: String, deviceId: Long)
+
+# Private Data
+GET         /:email/events                               controllers.PrivatePowerQuality.display(email: String)
+GET         /:email/trends                               controllers.PrivatePowerQuality.getTrends(email: String)
+
+
+# OPQBox websocket connection
+GET /private/ws                                          controllers.WebSockets.handleSocket()
+
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                                controllers.Assets.at(path="/public", file)

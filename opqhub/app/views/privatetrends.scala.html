@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+    <head lang="en">
+        <meta charset="UTF-8">
+        <title>OPQHub - Public Power Quality</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Needed libraries -->
+        <script src="@routes.Assets.at("contrib/js/jquery-2.1.1.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/moment.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/bootstrap.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/jquery.flot.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/jquery.flot.time.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("contrib/js/spin.min.js")" type="text/javascript"></script>
+
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap.css")">
+
+        <!-- Site specific details -->
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("css/site.css")">
+    </head>
+    <body>
+        <!-- Responsive navbar -->
+        @navbar()
+
+        <!-- Main content -->
+        <div class="container" id="main-content">
+            <div class="row">
+                <div class="col-lg-4">
+                    <p>5 Minute (Voltage)</p>
+                    <div id="v-5m" style="height: 200px"></div>
+                </div>
+                <div class="col-lg-4">
+                    <p>1 Hour (Voltage)</p>
+                    <div id="v-1h" style="height: 200px"></div>
+                </div>
+                <div class="col-lg-4">
+                    <p>6 Hour (Voltage)</p>
+                    <div id="v-6h" style="height: 200px"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <p>5 Minute (Frequency)</p>
+                    <div id="f-5m" style="height: 200px"></div>
+                </div>
+                <div class="col-lg-4">
+                    <p>1 Hour (Frequency)</p>
+                    <div id="f-1h" style="height: 200px"></div>
+                </div>
+                <div class="col-lg-4">
+                    <p>6 Hour (Frequency)</p>
+                    <div id="f-6h" style="height: 200px"></div>
+                </div>
+            </div>
+
+        <script type="text/javascript">
+            function makeCharts(data, chart, ymin, ymax) {
+                var series = [];
+                for(var boxId in data) {
+                    if(data.hasOwnProperty(boxId)) {
+                        series.push({label: boxId, data: data[boxId]});
+                    }
+                }
+                $.plot(chart, series, {
+                   yaxis: {
+                       min: ymin,
+                       max: ymax
+                   },
+                   xaxis: {
+                       mode: "time",
+                       timeformat: "%H:%M",
+                       ticks: 4
+                   }
+                });
+            }
+
+            $(document ).ready(function() {
+            var opts = {
+            lines: 7, // The number of lines to draw
+            length: 20, // The length of each line
+            width: 10, // The line thickness
+            radius: 16, // The radius of the inner circle
+            corners: 1, // Corner roundness (0..1)
+            rotate: 0, // The rotation offset
+            direction: 1, // 1: clockwise, -1: counterclockwise
+            color: '#000', // #rgb or #rrggbb or array of colors
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: '50%', // Top position relative to parent
+            left: '50%' // Left position relative to parent
+            };
+
+            var divs = ["v-5m", "v-1h", "v-6h", "f-5m", "f-1h", "f-6h"];
+            var divToSpinner = {};
+
+            for(var i = 0; i < divs.length; i++) {
+                divToSpinner[divs[i]] = new Spinner(opts).spin(document.getElementById(divs[i]));
+            }
+
+                @*
+                $.get('@routes.Data.getVoltages(session.get("email"), utils.DateUtils.getPastTime(utils.DateUtils.getMillis, utils.DateUtils.TimeUnit.Minute, 5), utils.DateUtils.getMillis)')
+                    .done(function(data) {
+                        makeCharts(data, "#v-5m", 100, 140);
+                        divToSpinner['v-5m' ].stop();
+                    });
+
+                $.get('@routes.Data.getVoltages(session.get("email"), utils.DateUtils.getPastTime(utils.DateUtils.getMillis, utils.DateUtils.TimeUnit.Hour, 1), utils.DateUtils.getMillis)')
+                    .done(function(data) {
+                        makeCharts(data, "#v-1h", 100, 140);
+        divToSpinner['v-1h' ].stop();
+                    });
+
+                $.get('@routes.Data.getVoltages(session.get("email"), utils.DateUtils.getPastTime(utils.DateUtils.getMillis, utils.DateUtils.TimeUnit.Hour, 6), utils.DateUtils.getMillis)')
+                  .done(function(data) {
+                    makeCharts(data, "#v-6h", 100, 140);
+        divToSpinner['v-6h' ].stop();
+                  });
+
+                $.get('@routes.Data.getFrequencies(session.get("email"), utils.DateUtils.getPastTime(utils.DateUtils.getMillis, utils.DateUtils.TimeUnit.Minute, 5), utils.DateUtils.getMillis)')
+                  .done(function(data) {
+                    makeCharts(data, "#f-5m", 58, 62);
+        divToSpinner['f-5m' ].stop();
+                  });
+
+                $.get('@routes.Data.getFrequencies(session.get("email"), utils.DateUtils.getPastTime(utils.DateUtils.getMillis, utils.DateUtils.TimeUnit.Hour, 1), utils.DateUtils.getMillis)')
+                  .done(function(data) {
+                    makeCharts(data, "#f-1h", 58, 62);
+        divToSpinner['f-1h' ].stop();
+                 });
+
+                $.get('@routes.Data.getFrequencies(session.get("email"), utils.DateUtils.getPastTime(utils.DateUtils.getMillis, utils.DateUtils.TimeUnit.Hour, 6), utils.DateUtils.getMillis)')
+                  .done(function(data) {
+                    makeCharts(data, "#f-6h", 58, 62);
+        divToSpinner['f-6h' ].stop();
+                  });  *@nes
+            });
+        </script>
+    </body>
+</html>

@@ -1,0 +1,338 @@
+@(privateWsUrl: String, devices: List[String])
+
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>OPQHub - Public Power Quality</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+      <!-- Needed libraries -->
+    <script src="@routes.Assets.at("contrib/js/jquery-2.1.1.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/moment.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/bootstrap.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/bootstrap-datetimepicker.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/bootstrap-datetimepicker.min.js")" type="text/javascript"></script>
+
+    <script src="@routes.Assets.at("contrib/js/leaflet.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/jquery.flot.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/jquery.flot.navigate.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/spin.min.js")" type="text/javascript"></script>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap-datetimepicker.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/leaflet.css")">
+
+      <!-- Site specific details -->
+    <script src="@routes.Assets.at("js/itic-plotter.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("js/private-map.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("js/private-filters.js")" type="text/javascript"></script>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("css/site.css")">
+
+    <!-- Validation -->
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.13.0/additional-methods.min.js"></script>
+
+
+
+  </head>
+  <body>
+      <!-- Responsive navbar -->
+    @navbar()
+
+      <!-- Main content -->
+    <div class="container" id="main-content">
+
+        <!-- Main two columns. Left: controls & map. Right: Events and event details. -->
+      <div class="row">
+
+          <!-- Controls and map -->
+        <div class="col-md-5">
+
+            <!-- Controls -->
+          <div class="row">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Display</h3>
+              </div>
+              <div class="panel-body">
+
+                  <!-- Frequency filter -->
+                <div class="row">
+                  <label class="col-sm-3">Freq. (Hz)</label>
+                  <div class="col-xs-1">
+                    <input type="checkbox" class="checkbox" id="requestFrequency" checked="checked">
+                  </div>
+                    <div class="form-group col-sm-4">
+                        <label class="sr-only" for="frequencyGt">Frequency Greater Than</label>
+                        <input type="text" class="form-control" id="frequencyGt" placeholder="">
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="sr-only" for="frequencyLt">Frequency Less Than</label>
+                        <input type="text" class="form-control" id="frequencyLt" placeholder="">
+                    </div>
+                </div>
+
+                  <!-- Voltage filter -->
+                <div class="row">
+                  <label class="col-sm-3">Voltage (V)</label>
+                  <div class="col-xs-1">
+                    <input type="checkbox" id="requestVoltage" checked="checked">
+                  </div>
+                    <div class="form-group col-sm-4">
+                        <label class="sr-only" for="voltageGt">Voltage Greater Than</label>
+                        <input type="text" class="form-control" id="voltageGt" placeholder="">
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="sr-only" for="voltageLt">Voltage Less Than</label>
+                        <input type="text" class="form-control" id="voltageLt" placeholder="">
+                    </div>
+                </div>
+
+                  <!-- Duration filter -->
+                <div class="row">
+                  <label class="col-sm-4">Duration (sec)</label>
+                    <div class="form-group col-sm-4">
+                        <label class="sr-only" for="durationGt">Duration Greater Than</label>
+                        <input type="text" class="form-control" id="durationGt" placeholder="">
+                    </div>
+                    <div class="form-group col-sm-4">
+                        <label class="sr-only" for="durationLt">Duration Less Than</label>
+                        <input type="text" class="form-control" id="durationLt" placeholder="">
+                    </div>
+                </div>
+
+                  <!-- ITIC filter -->
+                <div class="row">
+                  <label class="col-sm-4 control-label">ITIC</label>
+                  <label class="col-xs-2 control-label">Severe</label>
+                  <div class="col-xs-1">
+                    <input type="checkbox" id="requestIticSevere" checked="checked">
+                  </div>
+                  <label class="col-xs-2 control-label">Moderate</label>
+                  <div class="col-xs-1">
+                    <input type="checkbox" id="requestIticModerate" checked="checked">
+                  </div>
+                  <label class="col-xs-1 control-label">OK</label>
+                  <div class="col-xs-1">
+                    <input type="checkbox" id="requestIticOk" checked="checked">
+                  </div>
+                </div>
+
+
+                  <!-- Time interval filter -->
+                <div class="row">
+                  <div class="form-group">
+
+                      <!-- Start time interval -->
+                    <label for="startTimestamp" class="col-sm-2 control-label">Time Interval</label>
+                    <div class="col-sm-5">
+                      <div class='input-group date' id='startTimestamp'>
+                        <input type='text' class="form-control" id="startTimestampInput"/>
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                      </div>
+                    </div>
+
+                      <!-- Stop time interval -->
+                    <div class="col-sm-5">
+                      <div class='input-group date' id='stopTimestamp'>
+                        <input type='text' class="form-control" id="stopTimestampInput"/>
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="error" class="verror"></div>
+                </div>
+
+                <!-- Device Id filter -->
+                <div class="row">
+                  <label for="deviceIds" class="col-sm-2 control-label">Devices</label>
+                  <div class="form-group col-sm-10">
+                    <select id="deviceIds" multiple class="form-control">
+                      @for(device <- devices) {
+                        <option>@device</option>
+                      }
+                    </select>
+                  </div>
+                </div>
+
+                  <!-- Update/Reset buttons -->
+                <div class="row">
+                  <label class="col-sm-2">Actions</label>
+                  <div class="col-sm-8">
+                    <button type="button" class="btn btn-primary btn-xs updateBtn" id="updateBtn">Update</button>
+                    <button class="btn btn-danger btn-xs" id="resetBtn">Reset</button>
+                  </div>
+                </div>
+              </div>
+              <div id="messages" class="invalid"></div>
+            </div>
+          </div>
+
+          <!-- Stats -->
+          <div class="row">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Your Power Quality Stats</h3>
+              </div>
+              <div class="panel-body">
+
+                  <!-- Frequency filter -->
+                <div class="row">
+                  <table class="table table-condensed">
+                    <tbody>
+                      <tr>
+                        <td>Events Past Hour</td>
+                        <td id="details-device-id">3</td>
+                      </tr>
+                      <tr>
+                        <td>Events Past Day</td>
+                        <td id="details-device-description">15</td>
+                      </tr>
+                      <tr>
+                        <td>Events Past Week</td>
+                        <td id="details-frequency">214</td>
+                      </tr>
+                      <tr>
+                        <td>Global Events</td>
+                        <td id="details-voltage">3</td>
+                      </tr>
+                      <tr>
+                        <td>Your Power Quality Score</td>
+                        <td><b><font color="green" >95</font></b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+
+              </div>
+              <div id="messages" class="invalid"></div>
+            </div>
+          </div>
+        </div>
+
+          <!-- Events and event details -->
+        <div class="col-md-7" id="public-map-right-col">
+
+            <!-- Events -->
+          <div class="row">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title" id="events-title">Events</h3>
+                <table>
+                  <tr>
+                    <td>Total Events</td> <td><span id="totalEvents" class='badge global-stats'>0</span></td>
+                    <td>Frequency Events</td> <td><span id="totalFrequencyEvents" class='badge global-stats'>0</span></td>
+                    <td>Voltage Events</td> <td><span id="totalVoltageEvents" class='badge global-stats'>0</span></td>
+                  </tr>
+                    <!--<tr>-->
+                    <!--<td>Registered OPQBoxes</td><td><span id="totalRegisteredDevices" class='badge global-stats'>0</span></td>-->
+                    <!--<td>Active OPQBoxes</td><td><span id="totalActiveDevices" class='badge global-stats'>0</span></td>-->
+                    <!--<td></td><td></td>-->
+                    <!--</tr>-->
+                </table>
+              </div>
+              <div class="panel-body" id="events-table">
+                <table class="table table-hover" id="events">
+                  <thead>
+                    <tr>
+                      <th>Timestamp</th>
+                      <th>Type</th>
+                      <th>Duration</th>
+                      <th>Value</th>
+                      <th>ITIC</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    </tbody>
+                </table>
+              </div>
+              <div class="panel-footer">
+
+            </div>
+            </div>
+          </div>
+
+            <!-- Event details -->
+          <div class="row">
+              <!-- Hidden fields that allow us to store the location of each event -->
+            <input type="hidden" id="details-center-lat" />
+            <input type="hidden" id="details-center-lng" />
+            <input type="hidden" id="details-zoom" />
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 id="event-title" class="panel-title">Event Details</h3>
+              </div>
+              <div class="panel-body">
+                <div class="col-md-4">
+                  <table class="table table-condensed">
+                    <tbody>
+                      <tr>
+                        <td>Device Id</td>
+                        <td id="details-device-id"></td>
+                      </tr>
+                      <tr>
+                        <td>Description</td>
+                        <td id="details-device-description"></td>
+                      </tr>
+                      <tr>
+                        <td>Frequency</td>
+                        <td id="details-frequency"></td>
+                      </tr>
+                      <tr>
+                        <td>Voltage</td>
+                        <td id="details-voltage"></td>
+                      </tr>
+                      <tr>
+                        <td>Duration</td>
+                        <td id="details-duration"></td>
+                      </tr>
+                      <tr>
+                        <td id="details-itic-title">ITIC</td>
+                        <td id="details-itic-severity"></td>
+                      </tr>
+                      <tr>
+                        <td>Locality</td>
+                        <td id="details-event-level"></td>
+                      </tr>
+                      <tr>
+                        <td>Location</td>
+                        <td><a class="btn-link" id="details-grid-id"></a></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div id="private-waveform" class="col-md-4 plot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      $(document).ready(function () {
+
+
+        initPage('@privateWsUrl');
+
+
+        $("#resetBtn").click(function() {
+          filters.reset();
+        });
+
+        $("#updateBtn").click(function() {
+          if(filters.validate('#messages')) {
+            ws.requestUpdate();
+          }
+        });
+    });
+    </script>
+  </body>
+</html>

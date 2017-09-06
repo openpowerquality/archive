@@ -1,0 +1,330 @@
+@(personForm: Form[models.Person])
+
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>OPQHub - Account Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Needed libraries -->
+    <script src="@routes.Assets.at("contrib/js/jquery-2.1.1.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/moment.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/bootstrap.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/bootstrap-datetimepicker.min.js")" type="text/javascript"></script>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap-datetimepicker.css")">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("css/site.css")">
+
+    <!-- Validation -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/css/bootstrapValidator.min.css"/>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/js/bootstrapValidator.min.js"></script>
+
+  </head>
+  <body>
+   @navbar()
+    <!-- Main content -->
+    <div class="container" id="main-content">
+      <form action="@routes.Administration.updateUser(session.get("email"))" method="POST" name="userAdminForm" id="userAdminForm" class="form-horizontal" role="form">
+
+      <div class="row">
+        <!-- User Settings Column -->
+        <div class="col-lg-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <i class="fa fa-user" style="margin-right: 5px;"></i>User Settings
+                <button style="margin-top:-7px" type="button" class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#userSettingsModal">
+                  <i class="fa fa-question-circle fa-lg"></i>
+                </button>
+              </h3>
+            </div>
+            <div class="panel-body">
+              @if(flash.contains("updated")) {
+                <p class="success">
+                @flash.get("updated")
+                </p>
+              }
+
+                  <!-- First name -->
+                @helper.textinput("firstName", "First Name *", "col-sm-4", "col-sm-7", "Jane", personForm("firstName").value)
+
+                  <!-- Last name -->
+                @helper.textinput("lastName", "Last Name *", "col-sm-4", "col-sm-7", "Doe", personForm("lastName").value)
+
+                  <!-- Email -->
+                @helper.emailinput("email", "E-mail *", "col-sm-4", "col-sm-7", "jane.doe@email.com", personForm("email").value)
+
+                  <!-- Alert email -->
+                @helper.emailinput("alertEmail", "Alert E-mail", "col-sm-4", "col-sm-7", "jane.doe@email.com", personForm("alertEmail").value)
+
+                  <!-- Password -->
+                @helper.passwordinput("password", "Password", "col-sm-4", "col-sm-7", "")
+
+                  <!-- Confirm password -->
+                @helper.passwordinput("confirmPassword", "Confirm Password", "col-sm-4", "col-sm-7", "")
+
+                  <!-- Submit button -->
+                <button type="submit" class="col-sm-offset-4 btn btn-primary" id="submitBtn" name="submitBtn" style="margin-top: 52px">Update</button>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">
+                <i class="fa fa-envelope" style="margin-right: 5px;"></i>E-Mail & SMS Alert Settings
+                <button style="margin-top:-7px" type="button" class="btn btn-default btn-sm pull-right" data-toggle="modal" data-target="#emailSmsModal">
+                  <i class="fa fa-question-circle fa-lg"></i>
+                </button>
+              </h3>
+            </div>
+            <div class="panel-body">
+
+                <!-- SMS Alert Toggle -->
+              <div class="form-group">
+                <label class="col-sm-4 control-label">SMS Alerts</label>
+                <div class="col-sm-7">
+                  <label class="radio-inline col-sm-4" for="smsEnable">
+                    <input type="radio" name="enableSmsAlerts" id="smsEnable" value="true" @if(personForm("enableSmsAlerts").value.toBoolean == true){checked}> Enable
+                  </label>
+                  <label class="radio-inline" for="smsDisable">
+                    <input type="radio" name="enableSmsAlerts" id="smsDisable" value="false" @if(personForm("enableSmsAlerts").value.toBoolean == false){checked}> Disable
+                  </label>
+                </div>
+              </div>
+
+                <!-- SMS carriers -->
+              <div class="form-group">
+                <label for="smsCarrier" class="col-sm-4 control-label">SMS Carrier</label>
+                <div class="col-sm-7">
+                  <select class="form-control" id="smsCarrier" name="smsCarrier">
+                  @for(carrier <- utils.Sms.listOfCarriers()) {
+                    <option>@carrier</option>
+                  }
+                  </select>
+                </div>
+              </div>
+
+                <!-- SMS number -->
+              @helper.textinput("smsNumber", "SMS Number", "col-sm-4", "col-sm-7", "", personForm("smsNumber").value)
+
+                <!-- SMS Alert ITIC Thresold -->
+              <div class="form-group">
+                <label class="col-sm-4 control-label">SMS ITIC Threshold</label>
+                <div class="col-sm-7">
+                  <label class="radio-inline col-sm-4" for="smsIticModerate">
+                    <input type="radio" name="iticRegionSmsThreshold" id="smsIticModerate" value="Moderate" @if(personForm("iticRegionSmsThreshold").value == "Moderate" || personForm("iticRegionSmsThreshold").value == null){checked}> Moderate
+                  </label>
+                  <label class="radio-inline" for="smsIticSevere">
+                    <input type="radio" name="iticRegionSmsThreshold" id="smsIticSevere" value="Severe" @if(personForm("iticRegionSmsThreshold").value == "Severe"){checked}> Severe
+                  </label>
+                </div>
+              </div>
+
+                <!-- Email Notification System Toggle -->
+              <div class="form-group">
+                <label class="col-sm-4 control-label">E-mail Notifications</label>
+                <div class="col-sm-7">
+                  <label class="radio-inline col-sm-4" for="emailEnable">
+                    <input type="radio" name="enableEmailAlerts" id="emailEnable" value="true" @if(personForm("enableEmailAlerts").value.toBoolean == true){checked}> Enable
+                  </label>
+                  <label class="radio-inline" for="emailDisable">
+                    <input type="radio" name="enableEmailAlerts" id="emailDisable" value="false" @if(personForm("enableEmailAlerts").value.toBoolean == false){checked}> Disable
+                  </label>
+                </div>
+              </div>
+
+                <!-- Notification Type -->
+              <div class="form-group">
+                <label class="col-sm-4 control-label">Notification Types</label>
+                <div class="col-sm-7">
+                  <label class="checkbox-inline col-sm-4" for="enableEmailSummaryNotifications">
+                    <input type="checkbox" name="enableEmailSummaryNotifications" id="enableEmailSummaryNotifications" value="true" @if(personForm("enableEmailSummaryNotifications").value.toBoolean == true){checked}> Summary
+                  </label>
+                  <label class="checkbox-inline" for="enableEmailAertNotifications">
+                    <input type="checkbox" name="enableEmailAertNotifications" id="enableEmailAertNotifications" value="true" @if(personForm("enableEmailAertNotifications").value.toBoolean == true){checked}> Alerts
+                  </label>
+                </div>
+              </div>
+
+                <!-- Notification Frequency -->
+              <div class="form-group">
+                <label class="col-sm-4 control-label">Summary Frequency</label>
+                <div class="col-sm-7">
+                  <label class="checkbox-inline col-sm-4" for="emailNotifyDaily">
+                    <input type="checkbox" name="emailNotifyDaily" id="emailNotifyDaily" value="true" @if(personForm("emailNotifyDaily").value.toBoolean == true){checked}> Daily
+                  </label>
+                  <label class="checkbox-inline" for="emailNotifyWeekly">
+                    <input type="checkbox" name="emailNotifyWeekly" id="emailNotifyWeekly" value="true" @if(personForm("emailNotifyWeekly").value.toBoolean == true){checked}> Weekly
+                  </label>
+                </div>
+              </div>
+
+                <!-- Email Alert ITIC Thresold -->
+              <div class="form-group">
+                <label class="col-sm-4 control-label">E-mail ITIC Threshold</label>
+                <div class="col-sm-7">
+                  <label class="radio-inline col-sm-4" for="emailIticModerate">
+                    <input type="radio" name="iticRegionEmailThreshold" id="emailIticModerate" value="Moderate" @if(personForm("iticRegionSmsThreshold").value == "Moderate" || personForm("iticRegionEmailThreshold").value == null){checked}> Moderate
+                  </label>
+                  <label class="radio-inline" for="emailIticSevere">
+                    <input type="radio" name="iticRegionEmailThreshold" id="emailIticSevere" value="Severe" @if(personForm("iticRegionSmsThreshold").value == "Severe"){checked}> Severe
+                  </label>
+                </div>
+              </div>
+
+                <!-- Submit button -->
+              <button type="submit" class="col-sm-offset-4 btn btn-primary" id="smsSubmit" name="submitBtn">Update</button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      </form>
+    </div>
+
+
+      <!-- Help Modals -->
+      <!-- User Settings Modal -->
+    <div class="modal fade" id="userSettingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">User Settings</h4>
+          </div>
+          <div class="modal-body">
+            <p>This panel allows you to update your basic account information.</p>
+            <p>Fields marked with an "<b>*</b>" are required.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Got it!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+      <!-- Email and SMS Settings Modal -->
+    <div class="modal fade" id="emailSmsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">E-Mail and SMS Settings</h4>
+          </div>
+          <div class="modal-body">
+            <h4>SMS Alerts</h4>
+            <p>
+              Enable SMS Alerts to receive text notifications when a moderate or severe ITIC event occurs.
+              The SMS will be sent to the indicated SMS number.
+            </p>
+
+            <h4>E-Mail Notifications</h4>
+            <p>Enable E-mail notifications to receive summary reports and alert messages of recent OPQBox activity. </p>
+            <p>You can receive daily and/or weekly summary reports. </p>
+            <p>Alert notifications are based upon the indicated ITIC severity.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Got it!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      $(document ).ready(function() {
+        $("#smsCarrier" ).val("@personForm("smsCarrier").value");
+      });
+
+      $(document).ready(function() {
+        // Set the value of the select box
+
+        $('#userAdminForm').bootstrapValidator({
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                firstName: {
+                    message: 'The first name is not valid',
+                    validators: {
+                        notEmpty: {
+                            message: 'The first name is required and cannot be empty'
+                        }
+                    }
+                },
+                lastName: {
+                  message: "The last name is not valid",
+                  validators: {
+                    notEmpty: {
+                      message: 'The last name is required and cannot be empty'
+                    }
+                  }
+                },
+                password: {
+                  message: "The password is not valid",
+                  validators: {
+                    identical: {
+                      field: "confirmPassword",
+                      message: "Passwords must match"
+                    }
+                  }
+                },
+                confirmPassword: {
+                  message: "The password is not valid",
+                  validators: {
+                    identical: {
+                      field: "password",
+                      message: "Passwords must match"
+                    }
+                  }
+                },
+                email: {
+                    validators: {
+                        notEmpty: {
+                            message: 'The email is required and cannot be empty'
+                        },
+                        emailAddress: {
+                            message: 'The input is not a valid email address'
+                        }
+                    }
+                },
+                alertEmail: {
+                    validators: {
+                        emailAddress: {
+                            message: 'The input is not a valid email address'
+                        }
+                    }
+                },
+                smsNumber: {
+                  validators: {
+                    phone: {
+                      country: "US",
+                      message: "Invalid phone number"
+                    }
+                  }
+                }
+            }
+        });
+});
+    </script>
+
+    <script type="text/javascript">
+      $('#timepicker').datetimepicker({
+        format: 'LT',
+        defaultDate: new Date()
+      });
+
+      //$('#timepicker').data("DateTimePicker").date(new Date());
+    </script>
+
+  </body>
+</html>

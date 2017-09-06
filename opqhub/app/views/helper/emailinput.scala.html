@@ -1,0 +1,7 @@
+@(formId: String, formLabel: String, labelSize: String, inputSize: String, placeholder: String, value: String = "")
+<div class="form-group">
+  <label for="@formId" class="@labelSize control-label">@formLabel</label>
+  <div class="@inputSize">
+    <input type="email" class="form-control" id="@formId" name="@formId" placeholder="@placeholder" value="@value">
+  </div>
+</div>

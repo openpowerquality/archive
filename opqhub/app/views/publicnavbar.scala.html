@@ -1,0 +1,36 @@
+@()
+
+<!-- Responsive navbar -->
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <!--  Display three horizontal lines when navbar collapsed. -->
+        <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand">OPQHub</a>
+    </div>
+
+    <!-- Drop down login -->
+    <div class="dropdown pull-right" id="login-dropdown">
+      <button class="btn btn-default btn-sm dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+        Login / Sign Up
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="dropdown-menu">
+        <form id="dropdown-form" class="navbar-form" role="form" method="POST" action="@routes.Application.authenticate()">
+          <div class="row">
+            @helper.emailinput("loginEmail", "Email *", "dropdown-input", "dropdown-input", "jane.doe@email.com")
+          </div>
+          <div class="row" class="dropdown-upper-pad">
+            @helper.passwordinput("loginPassword", "Password *", "dropdown-input", "dropdown-input", "")
+          </div>
+          <div class="row">
+            <button type="submit" class="btn btn-primary btn-sm dropdown-input dropdown-upper-pad">Log In</button>
+            <a href="@routes.Person.signup" class="btn btn-info btn-sm dropdown-upper-pad">Sign Up</a>
+          </div>
+        </form>
+      </ul>
+    </div>
+  </div>
+</div>

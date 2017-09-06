@@ -1,0 +1,10 @@
+@(checkboxId: String, label: String, offset: String, size: String, value: String = "false")
+<div class="form-group">
+  <div class="@offset @size">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" id="@checkboxId" name="@checkboxId" @if(value != null && value.equals("true")){checked}> @label
+      </label>
+    </div>
+  </div>
+</div>

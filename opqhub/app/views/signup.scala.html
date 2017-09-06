@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <title>OPQHub - Sign-Up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+      <!-- Needed libraries -->
+    <script src="@routes.Assets.at("contrib/js/jquery-2.1.1.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/moment.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("contrib/js/bootstrap.js")" type="text/javascript"></script>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("contrib/css/bootstrap.css")">
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("css/site.css")">
+
+    <!-- Validation -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/css/bootstrapValidator.min.css"/>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.2/js/bootstrapValidator.min.js"></script>
+
+  </head>
+  <body>
+   @navbar()
+      <!-- Main content -->
+    <div class="container" id="main-content">
+      <div class="row">
+        <!-- Sign Up Direction -->
+        <div class="col-lg-4 well">
+          <b>OPQHub Sign-Up</b>
+          <p>To create an OPQHub account. Fill out all fields on this page.</p>
+          <p>Fields marked with an "<b>*</b>" are required.</p>
+          <p>Once your account is created, you will be redirected to the OPQBox administration page. You will then be able register OPQBoxes with your account.</p>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div class="col-lg-8">
+          <form action="@routes.Person.signup()" method="POST" name="userAdminForm" id="userAdminForm" class="form-horizontal" role="form">
+
+            <!-- First name -->
+            @helper.textinput("firstName", "First Name *", "col-sm-3", "col-sm-7", "Jane")
+
+            <!-- Last name -->
+            @helper.textinput("lastName", "Last Name *", "col-sm-3", "col-sm-7", "Doe")
+
+            <!-- Email -->
+            @helper.emailinput("email", "E-mail *", "col-sm-3", "col-sm-7", "jane.doe@email.com")
+
+            <!-- Password -->
+            @helper.passwordinput("password", "Password *", "col-sm-3", "col-sm-7", "")
+
+            <!-- Confirm password -->
+            @helper.passwordinput("confirmPassword", "Confirm Password *", "col-sm-3", "col-sm-7", "")
+
+            <!-- Alert email -->
+            @helper.emailinput("alertEmail", "Alert Email", "col-sm-3", "col-sm-7", "jane.doe@email.com")
+
+            <!-- SMS carriers -->
+            <div class="form-group">
+              <label for="smsCarrier" class="col-sm-3 control-label">SMS Carrier</label>
+              <div class="col-sm-7">
+                <select class="form-control" id="smsCarrier" name="smsCarrier">
+                  @for(carrier <- utils.Sms.listOfCarriers()) {
+                    <option>@carrier</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- SMS number -->
+            @helper.textinput("smsNumber", "SMS Number", "col-sm-3", "col-sm-7", "")
+
+            <!-- Submit button -->
+            <button type="submit" class="col-sm-offset-3 btn btn-primary" id="submitBtn" name="submitBtn">Sign-Up</button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">
+      $(document).ready(function() {
+    $('#userAdminForm').bootstrapValidator({
+        message: 'This value is not valid',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            firstName: {
+                message: 'The first name is not valid',
+                validators: {
+                    notEmpty: {
+                        message: 'The first name is required and cannot be empty'
+                    }
+                }
+            },
+            lastName: {
+              message: "The last name is not valid",
+              validators: {
+                notEmpty: {
+                  message: 'The last name is required and cannot be empty'
+                }
+              }
+            },
+            password: {
+              message: "The password is not valid",
+              validators: {
+                notEmpty: {
+                  message: "The password is required and can not be empty"
+                },
+                identical: {
+                  field: "confirmPassword",
+                  message: "Passwords must match"
+                },
+                stringLength: {
+                  min: 5,
+                  message: "Password must be at least 5 characters"
+                }
+              }
+            },
+            confirmPassword: {
+              message: "The password is not valid",
+              validators: {
+                notEmpty: {
+                  message: "The password is required and can not be empty"
+                },
+                identical: {
+                  field: "password",
+                  message: "Passwords must match"
+                },
+                stringLength: {
+                  min: 5,
+                  message: "Password must be at least 5 characters"
+                }
+              }
+            },
+            email: {
+                validators: {
+                    notEmpty: {
+                        message: 'The email is required and cannot be empty'
+                    },
+                    emailAddress: {
+                        message: 'The input is not a valid email address'
+                    }
+                }
+            },
+            alertEmail: {
+                validators: {
+                    emailAddress: {
+                        message: 'The input is not a valid email address'
+                    }
+                }
+            },
+            smsNumber: {
+              validators: {
+                phone: {
+                  country: "US",
+                  message: "Invalid phone number"
+                }
+              }
+            }
+        }
+    });
+});
+    </script>
+  </body>
+</html>
